@@ -28,15 +28,15 @@ jobs:
       packages: write
     steps:
 
-    - name: Get tag name
-      id: meta
-      uses: docker/metadata-action@v4
-      with:
-        images: ${{ github.event.inputs.registry }}/${{ github.event.inputs.image_name }}
-        tags: |
-          type=sha,event=branch,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }},prefix=git-,suffix=,format=long
-          type=ref,event=pr
-          type=ref,event=tag
+    # - name: Get tag name
+    #   id: meta
+    #   uses: docker/metadata-action@v4
+    #   with:
+    #     images: ${{ github.event.inputs.registry }}/${{ github.event.inputs.image_name }}
+    #     tags: |
+    #       type=sha,event=branch,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }},prefix=git-,suffix=,format=long
+    #       type=ref,event=pr
+    #       type=ref,event=tag
 
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -64,5 +64,5 @@ jobs:
         context: .
         push: true
         platforms: linux/amd64,linux/arm64/v8
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
+        tags: ${{ github.event.inputs.registry }}/${{ github.event.inputs.image_name }}:staging
+        labels: org.opencontainers.image.title=mantle
