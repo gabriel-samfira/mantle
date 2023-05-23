@@ -1,14 +1,24 @@
 name: Build docker image
 on:
-  push:
-    branches:
-      - 'flatcar-master'
-  pull_request:
-    branches:
-      - 'flatcar-master'
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: flatcar/mantle
+  workflow_dispatch:
+    inputs:
+      registry:
+        description: "Registry to push to"
+        required: true
+        default: "ghcr.io"
+      image_name:
+        description: "Image name to push"
+        required: true
+        default: "flatcar/mantle"
+  # push:
+  #   branches:
+  #     - 'flatcar-master'
+  # pull_request:
+  #   branches:
+  #     - 'flatcar-master'
+# env:
+#   REGISTRY: ghcr.io
+#   IMAGE_NAME: flatcar/mantle
 
 jobs:
   docker:
@@ -22,7 +32,7 @@ jobs:
       id: meta
       uses: docker/metadata-action@v4
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        images: ${{ github.event.inputs.registry }}/${{ github.event.inputs.image_name }}
         tags: |
           type=sha,event=branch,enable=${{ github.ref == format('refs/heads/{0}', github.event.repository.default_branch) }},prefix=git-,suffix=,format=long
           type=ref,event=pr
@@ -44,7 +54,7 @@ jobs:
     - name: Login to registry
       uses: docker/login-action@v2
       with:
-        registry: ${{ env.REGISTRY }}
+        registry: ${{ github.event.inputs.registry }}
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
