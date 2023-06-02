@@ -35,6 +35,8 @@ func Parse(rawConfig []byte) (types.Config, report.Report, error) {
 		return types.Config{}, report.Report{}, errors.ErrCloudConfig
 	} else if isScript(rawConfig) {
 		return types.Config{}, report.Report{}, errors.ErrScript
+	} else if isMultipartMime(rawConfig) {
+		return types.Config{}, report.Report{}, errors.ErrMultipartMime
 	}
 
 	var err error

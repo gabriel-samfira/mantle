@@ -63,6 +63,7 @@ const (
 	kindContainerLinuxConfig
 	kindScript
 	kindButane
+	kindMultipartMime
 )
 
 var plog = capnslog.NewPackageLogger("github.com/flatcar/mantle", "platform/conf")
@@ -80,23 +81,31 @@ type UserData struct {
 // Conf is a configuration for a Container Linux machine. It may be either a
 // coreos-cloudconfig or an ignition configuration.
 type Conf struct {
-	ignitionV1  *v1types.Config
-	ignitionV2  *v2types.Config
-	ignitionV21 *v21types.Config
-	ignitionV22 *v22types.Config
-	ignitionV23 *v23types.Config
-	ignitionV3  *v3types.Config
-	ignitionV31 *v31types.Config
-	ignitionV32 *v32types.Config
-	ignitionV33 *v33types.Config
-	cloudconfig *cci.CloudConfig
-	script      string
-	user        string
+	ignitionV1    *v1types.Config
+	ignitionV2    *v2types.Config
+	ignitionV21   *v21types.Config
+	ignitionV22   *v22types.Config
+	ignitionV23   *v23types.Config
+	ignitionV3    *v3types.Config
+	ignitionV31   *v31types.Config
+	ignitionV32   *v32types.Config
+	ignitionV33   *v33types.Config
+	cloudconfig   *cci.CloudConfig
+	script        string
+	multipartMime string
+	user          string
 }
 
 func Empty() *UserData {
 	return &UserData{
 		kind: kindEmpty,
+	}
+}
+
+func MultipartMimeConfig(data string) *UserData {
+	return &UserData{
+		kind: kindMultipartMime,
+		data: data,
 	}
 }
 
@@ -148,6 +157,8 @@ func Unknown(data string) *UserData {
 		u.kind = kindCloudConfig
 	case ignerr.ErrScript:
 		u.kind = kindScript
+	case ignerr.ErrMultipartMime:
+		u.kind = kindMultipartMime
 	default:
 		// Guess whether this is an Ignition config or a CLC.
 		// This treats an invalid Ignition config as a CLC, and a
@@ -291,6 +302,8 @@ func (u *UserData) Render(ctPlatform string) (*Conf, error) {
 	case kindScript:
 		// pass through scripts unmodified, you are on your own.
 		c.script = u.data
+	case kindMultipartMime:
+		c.multipartMime = u.data
 	case kindIgnition:
 		err := renderIgnition()
 		if err != nil {
@@ -388,6 +401,8 @@ func (c *Conf) String() string {
 		return c.cloudconfig.String()
 	} else if c.script != "" {
 		return c.script
+	} else if c.multipartMime != "" {
+		return c.multipartMime
 	}
 
 	return ""

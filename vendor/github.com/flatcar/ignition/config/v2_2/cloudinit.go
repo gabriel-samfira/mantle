@@ -17,12 +17,26 @@
 package v2_2
 
 import (
+	"bufio"
 	"bytes"
 	"compress/gzip"
 	"io/ioutil"
+	"net/textproto"
 	"strings"
 	"unicode"
 )
+
+func isMultipartMime(userdata []byte) bool {
+	userdata = decompressIfGzipped(userdata)
+	mimeReader := textproto.NewReader(bufio.NewReader(bytes.NewReader(userdata)))
+	header, err := mimeReader.ReadMIMEHeader()
+	if err != nil {
+		return false
+	}
+	contentType := header.Get("Content-Type")
+
+	return strings.Contains(contentType, "multipart/mixed")
+}
 
 func isCloudConfig(userdata []byte) bool {
 	header := strings.SplitN(string(decompressIfGzipped(userdata)), "\n", 2)[0]

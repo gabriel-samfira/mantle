@@ -29,6 +29,7 @@ var (
 	ErrScript             = errors.New("not a config (found coreos-cloudinit script)")
 	ErrDeprecated         = errors.New("config format deprecated")
 	ErrCompressionInvalid = errors.New("invalid compression method")
+	ErrMultipartMime      = errors.New("not a config (found multipart mime)")
 
 	// Ignition section errors
 	ErrOldVersion     = errors.New("incorrect config version (too old)")

@@ -114,6 +114,7 @@ Content-Disposition: attachment; filename="ignition.txt"
 
 {
   "ignitionVersion": 1,
+  "This ignition configuration will be ignored because it's just embedded": "only cloud-init will run",
   "ignition": {
     "version": "3.0.0"
   },
@@ -179,7 +180,7 @@ chmod 600 ~core/.ssh/authorized_keys`),
 		Run:         CloudInitMultipartMime,
 		ClusterSize: 1,
 		Name:        "cl.cloudinit.multipart-mime",
-		UserData:    conf.CloudConfig(multipartMimeUserdata),
+		UserData:    conf.MultipartMimeConfig(multipartMimeUserdata),
 		Distros:     []string{"cl"},
 		Platforms:   []string{"qemu", "qemu-unpriv"},
 	})
