@@ -1270,7 +1270,7 @@ func (c *Conf) copyKeysScript(keys []*agent.Key) {
 func (c *Conf) copyKeysMultipartMime(keys []*agent.Key) {
 	keysAsStrings := keysToStrings(keys)
 	header := textproto.MIMEHeader{
-		"Content-Type":              []string{"text/plain; charset=\"us-ascii\""},
+		"Content-Type":              []string{"text/cloud-config; charset=\"us-ascii\""},
 		"MIME-Version":              []string{"1.0"},
 		"Content-Transfer-Encoding": []string{"7bit"},
 		"Content-Disposition":       []string{"attachment; filename=\"testing-keys.yaml\""},
