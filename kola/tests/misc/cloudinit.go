@@ -23,10 +23,10 @@ import (
 	"github.com/flatcar/mantle/platform/conf"
 )
 
-var multipartMimeUserdata = `Content-Type: multipart/mixed; boundary="===============1598784645116016685=="
+var multipartMimeUserdata = `Content-Type: multipart/mixed; boundary="MIMEMULTIPART"
 MIME-Version: 1.0
 
---===============1598784645116016685==
+--MIMEMULTIPART
 Content-Type: text/cloud-config; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -35,7 +35,7 @@ Content-Disposition: attachment; filename="cloud-config"
 ssh_authorized_keys:
   - ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBEftQIHTRvUmyDCN7VGve4srz03Jmq6rPnqq+XMHMQUIL9c/b0l7B5tWfQvQecKyLte94HOPzAyMJlktWTVGQnY=
 
---===============1598784645116016685==
+--MIMEMULTIPART
 Content-Type: text/cloud-config; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -43,7 +43,7 @@ Content-Disposition: attachment; filename="cloud-config"
 
 hostname: "example"
 
---===============1598784645116016685==
+--MIMEMULTIPART
 Content-Type: text/cloud-config; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -81,7 +81,7 @@ write_files:
     path: /tmp/kola_gzip_base64_2
     permissions: '0644'
 
---===============1598784645116016685==
+--MIMEMULTIPART
 Content-Type: text/x-shellscript; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -90,7 +90,7 @@ Content-Disposition: attachment; filename="create_file.ps1"
 #!/bin/sh
 touch /coreos-cloudinit_multipart.txt
 
---===============1598784645116016685==
+--MIMEMULTIPART
 Content-Type: text/cloud-config; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -98,7 +98,7 @@ Content-Disposition: attachment; filename="cloud-config"
 
 #test_to_check_if_cloud_config_can_contain_a_comment
 
---===============1598784645116016685==
+--MIMEMULTIPART
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -106,7 +106,7 @@ Content-Disposition: attachment; filename="some_text.txt"
 
 This is just some random text.
 
---===============1598784645116016685==
+--MIMEMULTIPART
 Content-Type: application/json; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -127,7 +127,7 @@ Content-Disposition: attachment; filename="ignition.txt"
   }
 }
 
---===============1598784645116016685==
+--MIMEMULTIPART
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -141,7 +141,7 @@ write_files:
     path: /kola_undercover
     permissions: '0644'
 
---===============1598784645116016685==--
+--MIMEMULTIPART--
 `
 
 func init() {

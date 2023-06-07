@@ -18,6 +18,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"net/textproto"
 	"net/url"
 	"os"
 	"reflect"
@@ -52,6 +53,7 @@ import (
 	ignvalidate "github.com/flatcar/ignition/config/validate"
 	"github.com/vincent-petithory/dataurl"
 	"golang.org/x/crypto/ssh/agent"
+	"gopkg.in/yaml.v3"
 )
 
 type kind int
@@ -92,7 +94,7 @@ type Conf struct {
 	ignitionV33   *v33types.Config
 	cloudconfig   *cci.CloudConfig
 	script        string
-	multipartMime string
+	multipartMime *MultipartUserdata
 	user          string
 }
 
@@ -303,7 +305,11 @@ func (u *UserData) Render(ctPlatform string) (*Conf, error) {
 		// pass through scripts unmodified, you are on your own.
 		c.script = u.data
 	case kindMultipartMime:
-		c.multipartMime = u.data
+		data, err := NewMultipartUserdata(u.data)
+		if err != nil {
+			return nil, err
+		}
+		c.multipartMime = data
 	case kindIgnition:
 		err := renderIgnition()
 		if err != nil {
@@ -401,8 +407,9 @@ func (c *Conf) String() string {
 		return c.cloudconfig.String()
 	} else if c.script != "" {
 		return c.script
-	} else if c.multipartMime != "" {
-		return c.multipartMime
+	} else if c.multipartMime != nil {
+		data, _ := c.multipartMime.Serialize()
+		return data
 	}
 
 	return ""
@@ -1260,6 +1267,27 @@ func (c *Conf) copyKeysScript(keys []*agent.Key) {
 	c.script = strings.Replace(c.script, "@SSH_KEYS@", keyString, -1)
 }
 
+func (c *Conf) copyKeysMultipartMime(keys []*agent.Key) {
+	keysAsStrings := keysToStrings(keys)
+	header := textproto.MIMEHeader{
+		"Content-Type":              []string{"text/plain; charset=\"us-ascii\""},
+		"MIME-Version":              []string{"1.0"},
+		"Content-Transfer-Encoding": []string{"7bit"},
+		"Content-Disposition":       []string{"attachment; filename=\"testing-keys.yaml\""},
+	}
+
+	udata := map[string][]string{
+		"ssh_authorized_keys": keysAsStrings,
+	}
+
+	asYaml, err := yaml.Marshal(udata)
+	if err != nil {
+		plog.Errorf("failed to marshal yaml: %v", err)
+		return
+	}
+	c.multipartMime.AddPart(header, asYaml)
+}
+
 // CopyKeys copies public keys from agent ag into the configuration to the
 // appropriate configuration section for the core user.
 func (c *Conf) CopyKeys(keys []*agent.Key) {
@@ -1285,6 +1313,8 @@ func (c *Conf) CopyKeys(keys []*agent.Key) {
 		c.copyKeysCloudConfig(keys)
 	} else if c.script != "" {
 		c.copyKeysScript(keys)
+	} else if c.multipartMime != nil {
+		c.copyKeysMultipartMime(keys)
 	}
 }
 
